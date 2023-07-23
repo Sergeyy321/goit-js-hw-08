@@ -4,14 +4,14 @@ import throttle from 'lodash.throttle'
 
 const SAVED_KEY  = localStorage.getItem("feedback-form-state")
 const refs = {
-    form: document.querySelector('.feedback-form'),
+    forms: document.querySelector('.feedback-form'),
     textarea: document.querySelector('.feedback-form textarea'),
     input: document.querySelector('.feedback-form input'),
 }
 
 onMessageTextareaInput()
 onMessageEmailInput()
-refs.form.addEventListener('submit',onformSubmit)
+refs.forms.addEventListener('submit',onformSubmit)
 refs.textarea.addEventListener('input', throttle(onTextareaInput, 500))
 refs.input.addEventListener('input', throttle(onEmailInput, 500))
 
