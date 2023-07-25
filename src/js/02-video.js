@@ -1,31 +1,34 @@
+const throttle = require('lodash.throttle');
+const LS_KEY = 'feedback-form-state';
 
-import Player from '@vimeo/player';
-import throttle from 'lodash.throttle';
-const iframe = document.querySelector('iframe');
-const player = new Player(iframe);
-const SAVED_TIME = localStorage.getItem("videoplayer-current-time")
+const formEl = document.querySelector('.feedback-form');
+const obj = getValue();
 
-player.on('timeupdate', throttle(onPlay, 1000));
+formEl.addEventListener('submit', onSubmit);
+formEl.addEventListener('input', throttle(onInput, 500));
+window.addEventListener('load', onLoad);
 
-const onPlay = function ({seconds}) {
-    localStorage.setItem(SAVED_TIME,
-   JSON.stringify(seconds))
-};
+function onInput(evt) {
+    obj[evt.target.name] = evt.target.value.trim();
+    localStorage.setItem(LS_KEY, JSON.stringify(obj));
+}
 
+function onSubmit(evt) {
+    evt.preventDefault();
+    console.log(obj);
+    evt.target.reset();
+    localStorage.removeItem(LS_KEY);
+}
 
+function onLoad() {
+    Object.entries(obj).forEach(([name, value]) => { formEl.elements[name].value = value })
+}
 
-
-player.setCurrentTime(SAVED_TIME).then(function (seconds) {
-    
-})
-.catch(function (error) {
-        switch (error.name) {
-            case 'RangeError':
-                break;
-            default:
-                break;
-        }
-    });
-
-
-
+function getValue() {
+    try {
+        const formData = localStorage.getItem(LS_KEY);
+        return formData ? JSON.parse(formData) : {};
+    } catch (error) {
+        console.error(error.message);
+    }
+}

@@ -1,47 +1,49 @@
+import throttle from 'lodash.throttle';
 
-import throttle from 'lodash.throttle'
-const SAVED_KEY  = localStorage.getItem("feedback-form-state")
-const refs = {
-    forms: document.querySelector('.feedback-form'),
-    textarea: document.querySelector('.feedback-form textarea'),
-    input: document.querySelector('.feedback-form input'),
+const formEl = document.querySelector('.feedback-form');
+const inputEl = document.querySelector('form input');
+const textareaEl = document.querySelector('form textarea');
+let formDate = {};
+const STORAGE_KEY = 'feedback';
+
+formEl.addEventListener('submit', onFormSubmit);
+formEl.addEventListener('input', throttle(onFormInput, 500));
+
+populateForm();
+
+function onFormSubmit(event) {
+  event.preventDefault();
+
+  if (inputEl.value === '' || textareaEl.value === '') {
+    return alert('Fields must be filled in');
+  }
+
+  console.log(formDate);
+
+  localStorage.removeItem(STORAGE_KEY);
+  event.currentTarget.reset();
+  formDate = {};
 }
 
-onMessageTextareaInput()
-onMessageEmailInput()
-refs.forms.addEventListener('submit',onformSubmit)
-refs.textarea.addEventListener('input', throttle(onTextareaInput, 500))
-refs.input.addEventListener('input', throttle(onEmailInput, 500))
+function onFormInput(event) {
+  const formValue = event.target.value;
+  const formKay = event.target.name;
 
+  formDate[formKay] = formValue;
 
-function onformSubmit(event) { 
-    event.preventDefault()   
-    event.target.reset()
-    localStorage.removeItem(SAVED_KEY)
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(formDate));
 }
 
-function onTextareaInput(event) {
-    value = event.target.value
-    localStorage.setItem(SAVED_KEY,value)   
-}
-function onEmailInput(event) {
-    value = event.target.value
-    localStorage.setItem(SAVED_KEY,value)   
-}
+function populateForm() {
+  const savedForm = JSON.parse(localStorage.getItem(STORAGE_KEY));
 
+  if (savedForm.email) {
+    inputEl.value = savedForm.email;
+    formDate.email = savedForm.email;
+  }
 
-function onMessageTextareaInput(event) {
-    savedMessage = localStorage.getItem(SAVED_KEY)
-    if (savedMessage) {
-    console.log(savedMessage) 
-    refs.textarea.value =  savedMessage      
-}
-}
-
-function onMessageEmailInput(event) {
-    savedMessage = localStorage.getItem(SAVED_KEY)
-    if (savedMessage) {
-    console.log(savedMessage) 
-    refs.textarea.value =  savedMessage      
-}
+  if (savedForm.message) {
+    textareaEl.value = savedForm.message;
+    formDate.message = savedForm.message;
+  }
 }
